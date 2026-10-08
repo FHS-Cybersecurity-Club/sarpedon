@@ -26,10 +26,10 @@ var (
 
 func init() {
 	flag.BoolVar(&debugEnabled, "d", false, "Print verbose debug information")
-	flag.Parse()
 }
 
 func main() {
+	flag.Parse()
 	readConfig(&sarpConfig)
 	checkConfig()
 

@@ -1,0 +1,56 @@
+name: sarpedon
+
+services:
+  mongo:
+    image: mongo:8.0.32-noble
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "quit(db.adminCommand({ ping: 1 }).ok ? 0 : 1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  sarpedon:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGODB_URI: mongodb://mongo:27017
+      GIN_MODE: release
+    volumes:
+      - type: bind
+        source: ./sarpedon.conf
+        target: /app/sarpedon.conf
+        read_only: true
+        bind:
+          create_host_path: false
+    networks:
+      - backend
+      - edge
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    depends_on:
+      sarpedon:
+        condition: service_started
+    command: ["tunnel", "--no-autoupdate", "run"]
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?Set TUNNEL_TOKEN in .env before starting the stack}
+    networks:
+      - edge
+
+networks:
+  backend:
+    internal: true
+  edge:
+
+volumes:
+  mongo-data:

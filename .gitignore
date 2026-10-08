@@ -1,2 +1,5 @@
 sarpedon
 sarpedon.conf
+.env
+.env.*
+!.env.example

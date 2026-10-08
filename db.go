@@ -14,11 +14,18 @@ import (
 
 var (
 	dbName      = "sarpedon"
-	dbURI       = "mongodb://localhost:27017"
+	dbURI       = getEnv("MONGODB_URI", "mongodb://localhost:27017")
 	mongoClient *mongo.Client
 	mongoCtx    context.Context
 	timeConn    time.Time
 )
+
+func getEnv(key, fallback string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return fallback
+}
 
 type scoreEntry struct {
 	Time           time.Time     `json:"time,omitempty"`
@@ -144,6 +151,7 @@ func getAll(teamName, imageName string) []scoreEntry {
 	if err := cursor.All(mongoCtx, &scores); err != nil {
 		panic(err)
 	}
+	applyConfiguredTeamAliases(scores)
 	return scores
 }
 
@@ -242,6 +250,7 @@ func getScores() ([]scoreEntry, error) {
 	if err = cursor.All(context.TODO(), &scores); err != nil {
 		return scores, err
 	}
+	applyConfiguredTeamAliases(scores)
 
 	return scores, nil
 }
@@ -260,6 +269,7 @@ func getTop() ([]scoreEntry, error) {
 	if err = cursor.All(context.TODO(), &scores); err != nil {
 		return scores, err
 	}
+	applyConfiguredTeamAliases(scores)
 
 	return scores, nil
 }

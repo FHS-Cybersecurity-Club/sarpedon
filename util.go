@@ -34,6 +34,18 @@ func getTeam(teamProp string) teamData {
 	return teamData{}
 }
 
+func applyConfiguredTeamAliases(scores []scoreEntry) {
+	aliases := make(map[string]string, len(sarpConfig.Team))
+	for _, team := range sarpConfig.Team {
+		aliases[team.ID] = team.Alias
+	}
+	for i := range scores {
+		if alias, ok := aliases[scores[i].Team.ID]; ok {
+			scores[i].Team.Alias = alias
+		}
+	}
+}
+
 func getImage(imageName string) imageData {
 	for _, image := range sarpConfig.Image {
 		if image.Name == imageName {

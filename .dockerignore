@@ -1,0 +1,10 @@
+.git
+.codegraph
+.agents
+.codex
+.env
+.env.*
+*.conf
+sarpedon
+*.tar
+*.tar.gz

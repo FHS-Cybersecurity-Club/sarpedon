@@ -4,6 +4,9 @@ Simple and very fast [aeacus](https://github.com/elysium-suite/aeacus) endpoint.
 
 ## Installation
 
+For the Docker Compose deployment with MongoDB and Cloudflare Tunnel, see
+[DEPLOYMENT.md](DEPLOYMENT.md).
+
 Use these steps for a Linux system with `apt`:
 
 ```bash
