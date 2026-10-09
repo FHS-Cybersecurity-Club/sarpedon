@@ -18,8 +18,7 @@ services:
       start_period: 10s
 
   sarpedon:
-    image: sarpedon-sarpedon@sha256:cff3a16d7d24c535943d434153eb6e060c568deb912a9f7f20d7b93b601f76f9
-    pull_policy: never
+    image: ghcr.io/fhs-cybersecurity-club/sarpedon@sha256:cff3a16d7d24c535943d434153eb6e060c568deb912a9f7f20d7b93b601f76f9
     restart: unless-stopped
     depends_on:
       mongo:
