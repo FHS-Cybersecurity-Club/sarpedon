@@ -2,7 +2,9 @@ name: sarpedon
 
 services:
   mongo:
-    image: mongo:8.0.32-noble
+    image: docker.io/library/mongo@sha256:01354084d2ae665d2e79b79b0cdc50c2c0c98873618912d9a2c8c9cb5c3d24e6
+    environment:
+      GLIBC_TUNABLES: glibc.pthread.rseq=1
     restart: unless-stopped
     volumes:
       - mongo-data:/data/db
@@ -16,7 +18,8 @@ services:
       start_period: 10s
 
   sarpedon:
-    build: .
+    image: sarpedon-sarpedon@sha256:cff3a16d7d24c535943d434153eb6e060c568deb912a9f7f20d7b93b601f76f9
+    pull_policy: never
     restart: unless-stopped
     depends_on:
       mongo:
@@ -36,7 +39,7 @@ services:
       - edge
 
   cloudflared:
-    image: cloudflare/cloudflared:latest
+    image: docker.io/cloudflare/cloudflared@sha256:b269e8abd07a5bf6f3f4be65d5050b2174eca89c56a0241a8ff32a16aec454e4
     restart: unless-stopped
     depends_on:
       sarpedon:
@@ -47,6 +50,22 @@ services:
     networks:
       - edge
 
+  authentik-proxy:
+    image: ghcr.io/goauthentik/proxy@sha256:0d1ef18bc60d67199e983e5ee7b8be61e945fa223f5525b4c3a1a2525b21ca76
+    container_name: ak-outpost-sarpedon
+    restart: unless-stopped
+    depends_on:
+      sarpedon:
+        condition: service_started
+    env_file:
+      - ./.authentik-outpost.env
+    environment:
+      AUTHENTIK_HOST: https://auth.knightscyber.org
+      AUTHENTIK_HOST_BROWSER: https://auth.knightscyber.org
+      AUTHENTIK_INSECURE: "false"
+    networks:
+      - edge
+
 networks:
   backend:
     internal: true
@@ -54,3 +73,4 @@ networks:
 
 volumes:
   mongo-data:
+    name: sarpedon_mongo-data
